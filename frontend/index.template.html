@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FastAPI Frontend</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    input, textarea { width: 100%; padding: 0.5rem; margin-top: 1rem; font-size: 1rem; }
+    textarea { height: 150px; resize: none; }
+  </style>
+</head>
+<body>
+  <h1>Enter Name</h1>
+  <input type="text" id="nameInput" placeholder="Type name and hit Enter" />
+  <textarea id="responseOutput" readonly placeholder="Response will appear here..."></textarea>
+
+  <script>
+    const BACKEND_URL = "{{BACKEND_URL}}"; // injected via server
+
+    const input = document.getElementById('nameInput');
+    const output = document.getElementById('responseOutput');
+
+    input.addEventListener('keypress', async function (e) {
+      if (e.key === 'Enter') {
+        const nameValue = input.value.trim();
+        if (!nameValue) return;
+
+        try {
+          const res = await fetch(`${BACKEND_URL}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: nameValue })
+          });
+
+          const data = await res.json();
+          output.value = JSON.stringify(data, null, 2);
+        } catch (err) {
+          output.value = 'Error: ' + err.message;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

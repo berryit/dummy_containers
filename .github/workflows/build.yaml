@@ -1,0 +1,72 @@
+---
+name: Build
+
+"on":
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/build.yaml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platforms:
+          - linux/amd64
+          - linux/arm64
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Clone current repository
+        uses: actions/checkout@v4
+      
+      - name: Install qemu dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static
+    
+      - name: Build backend using buildah
+        id: build_backend
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/berryit/backend:latest
+          tags: ghcr.io/berryit/backend:latest
+          platforms: ${{ matrix.platforms }}
+          containerfiles: |
+            ./backend/Containerfile
+          context: ./backend
+
+      - name: Push backend to ghcr.io
+        uses: redhat-actions/push-to-registry@v2
+        with:
+            image: ${{ steps.build_backend.outputs.image }}
+            tags: ${{ steps.build_backend.outputs.tags }}
+            registry: ghcr.io
+            username: ${{ github.repository_owner }}
+            password: ${{ github.token }}
+    
+      - name: Build frontend using buildah
+        id: build_frontend
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ghcr.io/berryit/frontend:latest
+          tags: ghcr.io/berryit/frontend:latest
+          platforms: ${{ matrix.platforms }}
+          containerfiles: |
+            ./frontend/Containerfile
+          context: ./frontend
+
+      - name: Push frontend to ghcr.io
+        uses: redhat-actions/push-to-registry@v2
+        with:
+            image: ${{ steps.build_frontend.outputs.image }}
+            tags: ${{ steps.build_frontend.outputs.tags }}
+            registry: ghcr.io
+            username: ${{ github.repository_owner }}
+            password: ${{ github.token }}
