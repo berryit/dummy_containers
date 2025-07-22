@@ -1,7 +1,6 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');  // install with `npm install node-fetch`
 
 const app = express();
 const BACKEND_URL = process.env.BACKEND_URL || 'http://backend:8000';
