@@ -14,11 +14,8 @@ name: Build
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        platforms:
-          - linux/amd64
-          #- linux/arm64
+    env:
+      PLATFORMS: linux/amd64, linux/arm64
     permissions:
       packages: write
       contents: read
@@ -37,7 +34,7 @@ jobs:
         with:
           image: ghcr.io/berryit/backend:latest
           tags: ghcr.io/berryit/backend:latest
-          platforms: ${{ matrix.platforms }}
+          platforms: ${{ env.PLATFORMS }}
           containerfiles: |
             ./backend/Containerfile
           context: ./backend
@@ -57,7 +54,7 @@ jobs:
         with:
           image: ghcr.io/berryit/frontend:latest
           tags: ghcr.io/berryit/frontend:latest
-          platforms: ${{ matrix.platforms }}
+          platforms: ${{ env.PLATFORMS }}
           containerfiles: |
             ./frontend/Containerfile
           context: ./frontend

@@ -1,0 +1,13 @@
+services:
+  backend:
+    image: ghcr.io/berryit/backend:latest
+    platform: linux/arm64
+  frontend:
+    image: ghcr.io/berryit/frontend:latest
+    platform: linux/arm64
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_URL: "http://backend:8000"
+    depends_on:
+      - backend

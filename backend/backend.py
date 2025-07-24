@@ -1,12 +1,15 @@
+import time
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import time
+from pydantic import constr
+
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development only; restrict in prod
+    allow_origin_regex=".*frontend.*",
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -14,7 +17,7 @@ app.add_middleware(
 
 # Input data model
 class InputData(BaseModel):
-    name: str
+    name: constr(min_length=1, max_length=200)
 
 
 # Output data model
